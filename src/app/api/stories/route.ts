@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -555,9 +555,9 @@ interface CreateStoryRequest {
   technicalNotes?: string;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const projectRoot = await resolveProjectRoot();
+    const projectRoot = await resolveProjectRoot(request);
     const storiesDir = path.join(projectRoot, 'docs', 'stories');
 
     // Find all markdown files
@@ -629,7 +629,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as CreateStoryRequest;
 
@@ -638,7 +638,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    const projectRoot = await resolveProjectRoot();
+    const projectRoot = await resolveProjectRoot(request);
     const storiesDir = path.join(projectRoot, 'docs', 'stories');
 
     // Ensure stories directory exists

@@ -147,12 +147,12 @@ interface UpdateStoryRequest {
 
 // GET /api/stories/[id] - Get a single story
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const projectRoot = await resolveProjectRoot();
+    const projectRoot = await resolveProjectRoot(request);
     const storiesDir = path.join(projectRoot, 'docs', 'stories');
 
     const filePath = await findStoryFile(storiesDir, id);
@@ -195,7 +195,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json() as UpdateStoryRequest;
 
-    const projectRoot = await resolveProjectRoot();
+    const projectRoot = await resolveProjectRoot(request);
     const storiesDir = path.join(projectRoot, 'docs', 'stories');
 
     const filePath = await findStoryFile(storiesDir, id);
@@ -307,12 +307,12 @@ export async function PUT(
 
 // DELETE /api/stories/[id] - Delete a story
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const projectRoot = await resolveProjectRoot();
+    const projectRoot = await resolveProjectRoot(request);
     const storiesDir = path.join(projectRoot, 'docs', 'stories');
 
     const filePath = await findStoryFile(storiesDir, id);

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import useSWR from 'swr';
 import { useStoryStore } from '@/stores/story-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useProjectsStore } from '@/stores/projects-store';
 import { MOCK_STORIES } from '@/lib/mock-data';
 import { apiUrl } from '@/lib/api';
 import type { Story } from '@/types';
@@ -46,11 +47,13 @@ export function useStories(options: UseStoriesOptions = {}): UseStoriesReturn {
   const { refreshInterval = 0 } = options;
   const { setStories, setLoading, setError } = useStoryStore();
   const { settings } = useSettingsStore();
+  const activeProjectId = useProjectsStore((state) => state.activeProjectId);
   const useMockData = settings.useMockData;
 
-  // SWR for API fetch (disabled when using mock data)
+  // SWR for API fetch (disabled when using mock data). Key includes the
+  // active project so switching tabs does not keep serving the default repo.
   const { data, error, isLoading, mutate } = useSWR<StoriesResponse>(
-    useMockData ? null : apiUrl('/api/stories'), // null key disables fetching
+    useMockData ? null : apiUrl('/api/stories', activeProjectId),
     fetcher,
     {
       refreshInterval: refreshInterval > 0 ? refreshInterval : undefined,

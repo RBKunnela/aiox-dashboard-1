@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { apiUrl } from '@/lib/api';
+import { useProjectsStore } from '@/stores/projects-store';
 import {
   AGENT_CONFIG,
   type AgentId,
@@ -103,6 +104,7 @@ export function StoryEditModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const activeProjectId = useProjectsStore((state) => state.activeProjectId);
 
   // Initialize form data when story changes
   useEffect(() => {
@@ -135,7 +137,7 @@ export function StoryEditModal({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(apiUrl(`/api/stories/${story.id}`), {
+      const response = await fetch(apiUrl(`/api/stories/${story.id}`, activeProjectId), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -169,7 +171,7 @@ export function StoryEditModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [story, formData, onUpdated, onOpenChange]);
+  }, [story, formData, onUpdated, onOpenChange, activeProjectId]);
 
   const handleDelete = useCallback(async () => {
     if (!story) return;
@@ -178,7 +180,7 @@ export function StoryEditModal({
     setError(null);
 
     try {
-      const response = await fetch(apiUrl(`/api/stories/${story.id}`), {
+      const response = await fetch(apiUrl(`/api/stories/${story.id}`, activeProjectId), {
         method: 'DELETE',
       });
 
@@ -196,7 +198,7 @@ export function StoryEditModal({
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
-  }, [story, onDeleted, onOpenChange]);
+  }, [story, onDeleted, onOpenChange, activeProjectId]);
 
   const handleClose = useCallback(() => {
     if (!isSubmitting && !isDeleting) {

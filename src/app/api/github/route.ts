@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { resolveProjectRoot } from '@/lib/project-registry';
+import { ghExecOpts } from '@/lib/gh-exec';
 
 const execFileAsync = promisify(execFile);
 
@@ -29,10 +30,11 @@ interface GitHubPR {
 export async function GET(request: NextRequest) {
   try {
     const projectRoot = await resolveProjectRoot(request);
+    const execOpts = ghExecOpts(projectRoot);
 
     // Check if gh CLI is authenticated
     try {
-      await execFileAsync('gh', ['auth', 'status']);
+      await execFileAsync('gh', ['auth', 'status'], execOpts);
     } catch {
       return NextResponse.json(
         {
@@ -44,7 +46,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch issues and PRs in parallel, scoped to the project directory
-    const execOpts = { cwd: projectRoot };
     const [issuesResult, prsResult] = await Promise.allSettled([
       execFileAsync('gh', [
         'issue',

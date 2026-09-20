@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { apiUrl } from '@/lib/api';
+import { useProjectsStore } from '@/stores/projects-store';
 import {
   AGENT_CONFIG,
   type AgentId,
@@ -97,6 +98,7 @@ export function StoryCreateModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const activeProjectId = useProjectsStore((state) => state.activeProjectId);
 
   const handleChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -118,7 +120,7 @@ export function StoryCreateModal({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(apiUrl('/api/stories'), {
+      const response = await fetch(apiUrl('/api/stories', activeProjectId), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -156,7 +158,7 @@ export function StoryCreateModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, defaultStatus, onCreated, onOpenChange]);
+  }, [formData, defaultStatus, onCreated, onOpenChange, activeProjectId]);
 
   const handleClose = useCallback(() => {
     if (!isSubmitting) {
